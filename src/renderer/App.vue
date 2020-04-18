@@ -2,7 +2,7 @@
   <div id="app" class="md-layout md-alignment-center-center">
     <app-title-bar></app-title-bar>
     <div class="container">
-      <app-table></app-table>
+      <app-table :playerHistory="playerHistory" :championList="championList"></app-table>
       <div class="status">
         <p class="text--white">status: {{ status }}</p>
         <p class="text--white">gameflow: {{ gameFlow }}</p>
@@ -27,14 +27,9 @@
       const isAdmin = require('is-admin')
       if (await isAdmin()) {
         this.status = '檢查權限完成'
-        while (true) {
-          await this.connectLOL()
-          if (this.credentials) {
-            break
-          }
-          await this.sleep(5000)
-        }
-        await this.checkGameFlow()
+        const champion = await axios.get('static/champion.json')
+        this.championList = await champion.data.data
+        await this.connectLOLLoop()
       } else {
         this.status = '執行失敗!請使用系統管理員權限重新執行'
       }
@@ -44,6 +39,16 @@
         return new Promise((resolve) => {
           setTimeout(resolve, time)
         })
+      },
+      async connectLOLLoop () {
+        while (true) {
+          await this.connectLOL()
+          if (this.credentials) {
+            break
+          }
+          await this.sleep(5000)
+        }
+        await this.checkGameFlow()
       },
       async connectLOL () {
         this.status = '偵測LOL中'
@@ -57,16 +62,21 @@
         }
       },
       async checkGameFlow () {
-        const response = await request({
-          url: '/lol-gameflow/v1/gameflow-phase',
-          method: 'GET'
-        }, this.credentials)
-        // ChampSelect階段
-        this.gameFlow = await response.json()
-        await this.sleep(500)
-        this.checkGameFlow()
+        try {
+          const response = await request({
+            url: '/lol-gameflow/v1/gameflow-phase',
+            method: 'GET'
+          }, this.credentials)
+          this.gameFlow = await response.json()
+          await this.sleep(500)
+          this.checkGameFlow()
+        } catch (err) {
+          this.status = '已關閉遊戲，重新偵測中'
+          this.connectLOLLoop()
+        }
       },
       async getTeamList () {
+        this.status = '查詢戰績中...'
         const response = await request({
           url: '/lol-champ-select/v1/session',
           method: 'GET'
@@ -80,34 +90,54 @@
         }
         */
         this.teamList = list.myTeam
+        // console.log(this.teamList)
         this.getAccountId()
+      },
+      async getRankData (puuid) {
+        const response = await request(
+          {
+            url: `/lol-ranked/v1/ranked-stats/${puuid}`,
+            method: 'GET'
+          },
+          this.credentials
+        )
+        return response.json()
       },
       async getAccountId () {
         this.accountIdList = []
         await Promise.all(this.teamList.map(async el => {
           const response = await request({
             url: `/lol-summoner/v1/summoners/${el.summonerId}`,
+            // url: `/lol-ranked/v1/ranked-stats/0e1e1b6c-74a1-5c6e-8e8b-d25aeb59e770`,
             method: 'GET'
           }, this.credentials)
           const json = await response.json()
-          await this.accountIdList.push(json)
-          console.log(json)
-          console.log(this.accountIdList)
-          /*
-          {
-           accountId: ,
-           displayName:
-          }
-          */
+          const rankData = await this.getRankData(json.puuid)
+          await this.accountIdList.push(
+            {
+              accountId: json.accountId,
+              displayName: json.displayName,
+              puuid: json.puuid,
+              rankData
+            }
+          )
+          // console.log(this.accountIdList)
         }))
         this.getPlayerHistory()
       },
       async getPlayerHistory () {
         this.playerHistory = []
         await Promise.all(this.accountIdList.map(async el => {
-          const data = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/player_history/TW/${el.accountId}?begIndex=0&endIndex=3&`)
-          this.playerHistory.push(await data.data)
+          const playerHistory = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/player_history/TW/${el.accountId}?begIndex=0&endIndex=4&`)
+          this.playerHistory.push(
+            {
+              displayName: el.displayName,
+              rankData: el.rankData.queues[0],
+              games: playerHistory.data.games.games
+            }
+          )
         }))
+        this.status = '查詢戰績完成'
       }
     },
     watch: {
@@ -125,7 +155,8 @@
         gameFlow: '',
         teamList: [],
         accountIdList: [],
-        proxy: 'https://cors-anywhere.herokuapp.com/'
+        proxy: 'https://cors-anywhere.herokuapp.com/',
+        championList: null
       }
     }
   }
@@ -145,6 +176,7 @@
     height: 100%;
     font-family: "Helvetica", "Arial","LiHei Pro","黑體-繁","微軟正黑體", sans-serif;
     border-radius: .05rem;
+    overflow: hidden;
   }
   .container {
     background-color: #2b2b2b;
@@ -153,6 +185,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow-y: scroll;
   }
   .status {
     margin: .5rem;

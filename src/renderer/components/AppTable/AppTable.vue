@@ -1,46 +1,67 @@
 <template>
-  <table class="table">
+  <table class="table" v-show="playerHistory.length !== 0">
       <tr class="table__row--blue">
-        <th>ID</th>
+        <th>玩家資訊</th>
         <th>戰績1</th>
         <th>戰績2</th>
         <th>戰績3</th>
         <th>戰績4</th>
       </tr>
-      <tr class="table__row">
+      <tr v-for="(history, index) in playerHistory" :key="index" class="table__row">
         <td>
-          <p>遊戲名稱</p>
-          <p>牌位</p>
-          <p>分數</p>
+          <p>{{ history.displayName }}</p>
+          <p>{{ tierTable[history.rankData.tier] }} {{ history.rankData.division }}</p>
+          <p>{{ history.rankData.leaguePoints }} 分</p>
         </td>
-        <td>
-          <p><span class="icon--defeat"></span></p>
-          <p>角色名稱</p>
-          <p>12/12/12</p>
-          <p>2019/0306</p>
-        </td>
-        <td>
-          <p><span class="icon--defeat"></span></p>
-          <p>角色名稱</p>
-          <p>12/12/12</p>
-          <p>2019/0306</p>
-        </td>
-        <td>
-          <p><span class="icon--win"></span></p>
-          <p>角色名稱</p>
-          <p>12/12/12</p>
-          <p>2019/0306</p>
-        </td>
-        <td>
-          <p><span class="icon--defeat"></span></p>
-          <p>角色名稱</p>
-          <p>12/12/12</p>
-          <p>2019/0306</p>
+        <td v-for="(game, index) in history.games" :key="index">
+          <p><span :class=" game.participants[0].stats.win ? 'icon--win' : 'icon--defeat'"></span></p>
+          <p>{{ getChampName(game.participants[0].championId) }}</p>
+          <p>{{ game.participants[0].stats.kills }}/{{ game.participants[0].stats.deaths }}/{{ game.participants[0].stats.assists }}</p>
+          <p>{{ formatDate(new Date(game.gameCreation)) }}</p>
         </td>
       </tr>
       
   </table>
 </template>
+
+<script>
+  export default {
+    props: ['playerHistory', 'championList'],
+    watch: {
+      playerHistory: function (val) {
+      }
+    },
+    methods: {
+      formatDate (date) {
+        const year = date.getUTCFullYear()
+        const month = date.getUTCMonth() + 1
+        const day = date.getUTCDate()
+        return `${year}/${month}/${day}`
+      },
+      getChampName (id) {
+        for (var i in this.championList) {
+          if (this.championList[i].key === id.toString()) {
+            return this.championList[i].name
+          }
+        }
+      }
+    },
+    data () {
+      return {
+        tierTable: {
+          BRONZE: '銅牌',
+          SILVER: '銀牌',
+          GOLD: '金牌',
+          PLATINUM: '白金',
+          DIAMOND: '鑽石',
+          MASTER: '大師',
+          CHALLENGER: '菁英',
+          NONE: '無牌位'
+        }
+      }
+    }
+  }
+</script>
 
 <style lang="scss">
   .table {
