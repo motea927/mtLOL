@@ -2,7 +2,7 @@
 <div class="titlebar">
   <div class="titlebar__info">
     <img src="static/icons.svg" alt="">
-    <p>mtLOL v1.1.0</p>
+    <p>mtLOL v1.2.0</p>
   </div>
   <div class="titlebar__control">
     <div class="titlebar__control--btn" id="titlebar__control--min" @click="controlWindow('min')"></div> 

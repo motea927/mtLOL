@@ -3,11 +3,18 @@
     <app-title-bar></app-title-bar>
     <div class="container">
       <app-table :playerHistory="playerHistory" :championList="championList"></app-table>
+      <div class="option">
+          <input type="checkbox" id="autoAccept" v-model="isAutoAccept">
+          <label for="autoAccept">
+            <span :class="isAutoAccept ? 'icon--checked' : 'icon--checkbox'"></span>
+            <p class="option__text">自動接受配對</p>
+          </label>
+      </div>
       <div class="status">
         <p class="text--white">{{ status }}</p>
       </div>
-      <!--button-- @click="openDev">偵錯</!--button-->
     </div>
+      <!--button-- @click="openDev">偵錯</!--button-->
   </div>
 </template>
 
@@ -148,12 +155,26 @@
         }))
         // console.log(this.playerHistory)
         this.status = '查詢戰績完成'
+      },
+      async clickAcceptBtn () {
+        await request(
+          {
+            url: '/lol-matchmaking/v1/ready-check/accept',
+            method: 'POST'
+          }, this.credentials
+        )
       }
     },
     watch: {
       gameFlow: function (val) {
         if (val === 'ChampSelect') {
           this.getTeamList()
+        } else if (val === 'ReadyCheck') {
+          console.log('等待確認')
+          if (this.isAutoAccept) {
+            console.log('呼叫')
+            this.clickAcceptBtn()
+          }
         }
       }
     },
@@ -166,7 +187,8 @@
         teamList: [],
         accountIdList: [],
         proxy: 'https://cors-anywhere.herokuapp.com/',
-        championList: null
+        championList: null,
+        isAutoAccept: false
       }
     }
   }
@@ -204,4 +226,39 @@
     font-size: .16rem;
     color: #FFF;
   }
+  .option {
+    margin: .5rem;
+    font-size: .16rem;
+    color: #f4f4f4;
+    & input {
+      display: none;
+    }
+    & label {
+      cursor: pointer;
+    }
+    &__text {
+      display: inline-block;
+    }
+  }
+  .icon--checkbox {
+    padding: 0;
+    display: inline-block;
+    margin: 0 auto;
+    font-size: .2rem;
+    color: #f4f4f4;
+    &::before {
+      content: "\2610";
+    }
+  }
+  .icon--checked {
+    padding: 0;
+    display: inline-block;
+    margin: 0 auto;
+    font-size: .2rem;
+    color: #f4f4f4;
+    &::before {
+      content: "\2611";
+    }
+  }
+  
 </style>
