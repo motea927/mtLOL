@@ -88,7 +88,7 @@
         queueTypesTable: {
           'RANKED_SOLO_5x5': '單雙',
           'RANKED_TEAM_5x5': '彈性',
-          'RANKED_TFT': '戰旗'
+          'RANKED_TFT': '戰棋'
         }
       }
     }
