@@ -1,7 +1,7 @@
 <template>
 <div class="titlebar">
   <div class="titlebar__info">
-    <img src="static/icons.ico" alt="">
+    <img src="static/icons.svg" alt="">
     <p>mtLOL v1.0.0</p>
   </div>
   <div class="titlebar__control">

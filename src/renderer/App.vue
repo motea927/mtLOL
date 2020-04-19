@@ -1,13 +1,12 @@
 <template>
-  <div id="app" class="md-layout md-alignment-center-center">
+  <div id="app">
     <app-title-bar></app-title-bar>
     <div class="container">
       <app-table :playerHistory="playerHistory" :championList="championList"></app-table>
       <div class="status">
-        <p class="text--white">status: {{ status }}</p>
-        <p class="text--white">gameflow: {{ gameFlow }}</p>
+        <p class="text--white">{{ status }}</p>
       </div>
-      
+      <!--button-- @click="openDev">偵錯</!--button-->
     </div>
   </div>
 </template>
@@ -35,6 +34,10 @@
       }
     },
     methods: {
+      openDev () {
+        const remote = require('electron').remote
+        remote.getCurrentWebContents().openDevTools({mode: 'detach'})
+      },
       sleep (time) {
         return new Promise((resolve) => {
           setTimeout(resolve, time)
@@ -57,6 +60,7 @@
           this.credentials = credentials
           this.status = '已偵測到LOL，待配對成功即可顯示戰績'
         } catch (err) {
+          this.playerHistory = []
           this.status = '偵測不到LOL，請啟動LOL，5秒後重新偵測'
           this.credentials = null
         }
@@ -112,6 +116,7 @@
             method: 'GET'
           }, this.credentials)
           const json = await response.json()
+          console.log(json)
           const rankData = await this.getRankData(json.puuid)
           await this.accountIdList.push(
             {
@@ -128,7 +133,11 @@
       async getPlayerHistory () {
         this.playerHistory = []
         await Promise.all(this.accountIdList.map(async el => {
-          const playerHistory = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/player_history/TW/${el.accountId}?begIndex=0&endIndex=4&`)
+          const playerHistory = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/player_history/TW/${el.accountId}?begIndex=0&endIndex=4`, {
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          })
           this.playerHistory.push(
             {
               displayName: el.displayName,

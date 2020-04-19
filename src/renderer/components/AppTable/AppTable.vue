@@ -1,42 +1,46 @@
 <template>
-  <table class="table" v-show="playerHistory.length !== 0">
+  <table class="table" v-if="playerHistory.length !== 0">
       <tr class="table__row--blue">
         <th>玩家資訊</th>
-        <th>戰績1</th>
-        <th>戰績2</th>
-        <th>戰績3</th>
-        <th>戰績4</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
       </tr>
       <tr v-for="(history, index) in playerHistory" :key="index" class="table__row">
         <td>
-          <p>{{ history.displayName }}</p>
-          <p>{{ tierTable[history.rankData.tier] }} {{ history.rankData.division }}</p>
-          <p>{{ history.rankData.leaguePoints }} 分</p>
+            <p style="font-weight: 400">{{ history.displayName }}</p>
+            <p>{{ tierTable[history.rankData.tier] }} {{ history.rankData.division }}</p>
+            <p>{{ history.rankData.leaguePoints }} 分</p>
         </td>
         <td v-for="(game, index) in history.games" :key="index">
           <p><span :class=" game.participants[0].stats.win ? 'icon--win' : 'icon--defeat'"></span></p>
           <p>{{ getChampName(game.participants[0].championId) }}</p>
-          <p>{{ game.participants[0].stats.kills }}/{{ game.participants[0].stats.deaths }}/{{ game.participants[0].stats.assists }}</p>
-          <p>{{ formatDate(new Date(game.gameCreation)) }}</p>
+          <p>
+            {{ game.participants[0].stats.kills }}/{{ game.participants[0].stats.deaths }}/{{ game.participants[0].stats.assists }}
+          <p>{{ formatDateYMD(new Date(game.gameCreation)) }}</p>
+          <p>{{ formatDateHM(new Date(game.gameCreation)) }}</p>
         </td>
       </tr>
-      
   </table>
+  <div v-else class="emptyState">
+    <img src="static/empty.svg" alt="">
+  </div>
 </template>
 
 <script>
   export default {
     props: ['playerHistory', 'championList'],
-    watch: {
-      playerHistory: function (val) {
-      }
-    },
     methods: {
-      formatDate (date) {
-        const year = date.getUTCFullYear()
-        const month = date.getUTCMonth() + 1
-        const day = date.getUTCDate()
-        return `${year}/${month}/${day}`
+      formatDateHM (date) {
+        const hour = date.getHours() >= 10 ? date.getHours() : `0${date.getHours()}`
+        const minute = date.getMinutes() >= 10 ? date.getMinutes() : `0${date.getMinutes()}`
+        return `${hour}:${minute}`
+      },
+      formatDateYMD (date) {
+        const month = date.getMonth() + 1 >= 10 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`
+        const day = date.getDate()
+        return `${month}/${day}`
       },
       getChampName (id) {
         for (var i in this.championList) {
@@ -66,7 +70,7 @@
 <style lang="scss">
   .table {
     width: 80%;
-    margin-top: .3rem;
+    margin-top: .5rem;
     font-size: .16rem;
     & * {
       color: black;
@@ -78,8 +82,9 @@
       &:nth-of-type(odd) {
         background-color: #e9e9e9;
       }
-      & *, &--blue * {
+      & th, & td, & p, &--blue th, &--blue td, &--blue p {
         padding: .06rem .12rem;
+        vertical-align: middle;
       }
       &--blue {
         background-color: #2980b9;
@@ -93,7 +98,6 @@
     margin: 0 auto;
     font-size: .3rem;
     color: red;
-    cursor: pointer;
     &::before {
       content: "\2716";
     }
@@ -104,9 +108,23 @@
     margin: 0 auto;
     font-size: .3rem;
     color: green;
-    cursor: pointer;
     &::before {
       content: "\2714";
+    }
+  }
+  .emptyState {
+    margin-top: .5rem;
+  }
+  .text {
+    padding: 0;
+    &--kills {
+      color: #3cbc8d;
+    }
+    &--deaths {
+      color: #e9422e;
+    }
+    &--assists {
+      color: #ceaf6c;
     }
   }
 </style>
