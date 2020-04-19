@@ -116,7 +116,7 @@
             method: 'GET'
           }, this.credentials)
           const json = await response.json()
-          console.log(json)
+          // console.log(json)
           const rankData = await this.getRankData(json.puuid)
           await this.accountIdList.push(
             {
@@ -146,6 +146,7 @@
             }
           )
         }))
+        // console.log(this.playerHistory)
         this.status = '查詢戰績完成'
       }
     },

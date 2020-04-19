@@ -10,6 +10,7 @@
       <tr v-for="(history, index) in playerHistory" :key="index" class="table__row">
         <td>
             <p style="font-weight: 400">{{ history.displayName }}</p>
+            <p v-if="history.rankData.tier !== 'NONE'">牌位類型: {{ getQueueType(history.rankData.queueType) }}</p>
             <p>{{ tierTable[history.rankData.tier] }} {{ history.rankData.division }}</p>
             <p>{{ history.rankData.leaguePoints }} 分</p>
         </td>
@@ -20,6 +21,7 @@
             {{ game.participants[0].stats.kills }}/{{ game.participants[0].stats.deaths }}/{{ game.participants[0].stats.assists }}
           <p>{{ formatDateYMD(new Date(game.gameCreation)) }}</p>
           <p>{{ formatDateHM(new Date(game.gameCreation)) }}</p>
+          <p>{{ getQueueId(game.queueId) }}</p>
         </td>
       </tr>
   </table>
@@ -32,6 +34,16 @@
   export default {
     props: ['playerHistory', 'championList'],
     methods: {
+      getQueueType (queueType) {
+        const queueTypeStr = this.queueTypesTable[queueType]
+        if (queueTypeStr) return queueTypeStr
+        return queueType
+      },
+      getQueueId (queueId) {
+        const queueIdStr = this.queueIdTable[queueId]
+        if (queueIdStr) return queueIdStr
+        return queueId
+      },
       formatDateHM (date) {
         const hour = date.getHours() >= 10 ? date.getHours() : `0${date.getHours()}`
         const minute = date.getMinutes() >= 10 ? date.getMinutes() : `0${date.getMinutes()}`
@@ -53,6 +65,7 @@
     data () {
       return {
         tierTable: {
+          IRON: '鐵牌',
           BRONZE: '銅牌',
           SILVER: '銀牌',
           GOLD: '金牌',
@@ -61,6 +74,19 @@
           MASTER: '大師',
           CHALLENGER: '菁英',
           NONE: '無牌位'
+        },
+        queueIdTable: {
+          '420': '單雙積分',
+          '430': '一般對戰',
+          '440': '彈性積分',
+          '450': '隨機單中',
+          '830': '入門電腦',
+          '840': '初階電腦',
+          '850': '中階電腦'
+        },
+        queueTypesTable: {
+          'RANKED_SOLO_5x5': '單雙',
+          'RANKED_TEAM_5x5': '彈性'
         }
       }
     }
