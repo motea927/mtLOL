@@ -5,8 +5,8 @@
 
 一款英雄聯盟單雙排積分查詢輔助工具，只需開著程式當配對成功進入聊天室即可自動查詢戰績
 
-![image](https://raw.githubusercontent.com/motea927/vue-chat-paint/master/demo/img/demo1.jpg)
-![image](https://raw.githubusercontent.com/motea927/vue-chat-paint/master/demo/img/demo2.jpg)
+![image](https://raw.githubusercontent.com/motea927/mtLOL/master/demo/img/demo1.jpg)
+![image](https://raw.githubusercontent.com/motea927/mtLOL/master/demo/img/demo2.jpg)
 
 ## :page_facing_up: 技術 & 框架
 
