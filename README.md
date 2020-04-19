@@ -1,25 +1,27 @@
-# mt-lol
 
-> lol support utils
+# :trophy: mtLOL 英雄聯盟積分戰績輔助工具
 
-#### Build Setup
+下載點：https://drive.google.com/file/d/1UwqyH3QAp4Yn8oyUcVAsD5UPt8HsojLH/view?usp=sharing
 
-``` bash
-# install dependencies
-npm install
+一款英雄聯盟單雙排積分查詢輔助工具，只需開著程式當配對成功進入聊天室即可自動查詢戰績
 
-# serve with hot reload at localhost:9080
-npm run dev
+![image](https://raw.githubusercontent.com/motea927/vue-chat-paint/master/demo/img/demo1.jpg)
+![image](https://raw.githubusercontent.com/motea927/vue-chat-paint/master/demo/img/demo2.jpg)
 
-# build electron application for production
-npm run build
+## :page_facing_up: 技術 & 框架
 
+- **vue-electron**：整合Vue的electron開發框架
+- **Sass(Scss)**：CSS預處理器
+- **ES6**：ECMAScript 6 語法
+- **axios**：基於Promise的HTTP庫，可以用在瀏覽器和node.js中
+- **is-admin**：檢查系統管理員身分
+- **league-connect**：英雄聯盟客戶端連線工具
 
-# lint all JS/Vue component files in `src/`
-npm run lint
+## :pencil2: Reference
 
-```
-
----
-
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
+- **API-DOC**：http://lcu.vivide.re/
+- **check-gameflow**：/lol-gameflow/v1/gameflow-phase
+- **getTeamList**：/lol-champ-select/v1/session
+- **getRankData**：/lol-ranked/v1/ranked-stats/{puuid}
+- **getSummonersInfo**：/lol-summoner/v1/summoners/${el.summonerId}
+- **getPlayerHistory**：https://acs-garena.leagueoflegends.com/v1/stats/player_history/TW/{accountId}?begIndex={begIndex}&endIndex={endIndex}
