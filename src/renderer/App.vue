@@ -114,6 +114,16 @@
         )
         return response.json()
       },
+      async detailRankData (rankData) {
+        const newRankData = {}
+        rankData.queues.forEach((el, index) => {
+          if (el.tier === 'NONE') {
+            return newRankData
+          }
+          newRankData[el.queueType] = `${this.tierTable[el.tier]} ${el.division}  ${el.leaguePoints}`
+        })
+        return newRankData
+      },
       async getAccountId () {
         this.accountIdList = []
         await Promise.all(this.teamList.map(async el => {
@@ -125,12 +135,14 @@
           const json = await response.json()
           // console.log(json)
           const rankData = await this.getRankData(json.puuid)
+          const newRankData = await this.detailRankData(rankData)
+          // console.log(newRankData)
           await this.accountIdList.push(
             {
               accountId: json.accountId,
               displayName: json.displayName,
               puuid: json.puuid,
-              rankData
+              rankData: newRankData
             }
           )
           // console.log(this.accountIdList)
@@ -148,7 +160,7 @@
           this.playerHistory.push(
             {
               displayName: el.displayName,
-              rankData: el.rankData.queues[0],
+              rankData: el.rankData,
               games: playerHistory.data.games.games
             }
           )
@@ -170,9 +182,7 @@
         if (val === 'ChampSelect') {
           this.getTeamList()
         } else if (val === 'ReadyCheck') {
-          console.log('等待確認')
           if (this.isAutoAccept) {
-            console.log('呼叫')
             this.clickAcceptBtn()
           }
         }
@@ -188,7 +198,23 @@
         accountIdList: [],
         proxy: 'https://cors-anywhere.herokuapp.com/',
         championList: null,
-        isAutoAccept: false
+        isAutoAccept: false,
+        queueTypesTable: {
+          'RANKED_SOLO_5x5': '單雙',
+          'RANKED_FLEX_SR': '彈性',
+          'RANKED_TFT': '戰棋'
+        },
+        tierTable: {
+          IRON: '鐵牌',
+          BRONZE: '銅牌',
+          SILVER: '銀牌',
+          GOLD: '金牌',
+          PLATINUM: '白金',
+          DIAMOND: '鑽石',
+          MASTER: '大師',
+          CHALLENGER: '菁英',
+          NONE: '無牌位'
+        }
       }
     }
   }

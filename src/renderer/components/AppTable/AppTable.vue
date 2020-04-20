@@ -8,11 +8,17 @@
         <th></th>
       </tr>
       <tr v-for="(history, index) in playerHistory" :key="index" class="table__row">
-        <td>
-            <p style="font-weight: 400">{{ history.displayName }}</p>
-            <p v-if="history.rankData.tier !== 'NONE'">牌位類型: {{ getQueueType(history.rankData.queueType) }}</p>
-            <p>{{ tierTable[history.rankData.tier] }} {{ history.rankData.division }}</p>
-            <p>{{ history.rankData.leaguePoints }} 分</p>
+        <td class="table__playerInfo">
+            <p style="font-weight: 600">{{ history.displayName }}</p>
+            <p>單雙: <span v-if="history.rankData.RANKED_SOLO_5x5">{{ history.rankData.RANKED_SOLO_5x5 }}</span>
+                     <span v-else>無牌位</span>
+            </p>
+            <p>彈性: <span v-if="history.rankData.RANKED_FLEX_SR">{{ history.rankData.RANKED_FLEX_SR }}</span>
+                     <span v-else>無牌位</span>
+            </p>
+            <p>戰棋: <span v-if="history.rankData.RANKED_TFT">{{ history.rankData.RANKED_TFT }}</span>
+                     <span v-else>無牌位</span>
+            </p>
         </td>
         <td v-for="(game, index) in history.games" :key="index">
           <p><span :class=" game.participants[0].stats.win ? 'icon--win' : 'icon--defeat'"></span></p>
@@ -64,17 +70,6 @@
     },
     data () {
       return {
-        tierTable: {
-          IRON: '鐵牌',
-          BRONZE: '銅牌',
-          SILVER: '銀牌',
-          GOLD: '金牌',
-          PLATINUM: '白金',
-          DIAMOND: '鑽石',
-          MASTER: '大師',
-          CHALLENGER: '菁英',
-          NONE: '無牌位'
-        },
         queueIdTable: {
           '420': '單雙積分',
           '430': '一般對戰',
@@ -84,11 +79,6 @@
           '840': '初階電腦',
           '850': '中階電腦',
           '1020': '無限死鬥'
-        },
-        queueTypesTable: {
-          'RANKED_SOLO_5x5': '單雙',
-          'RANKED_TEAM_5x5': '彈性',
-          'RANKED_TFT': '戰棋'
         }
       }
     }
@@ -118,6 +108,9 @@
         background-color: #2980b9;
         color: #FFF;
       }
+    }
+    &__playerInfo {
+      text-align: left;
     }
   }
   .icon--defeat {
