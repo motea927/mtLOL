@@ -55,6 +55,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "bufferutil": "^4.0.1",
+    "cors-anywhere": "^0.4.1",
     "is-admin": "^3.0.0",
     "league-connect": "^2.0.1",
     "vue": "^2.5.16",

@@ -29,18 +29,34 @@
       AppTitleBar,
       AppTable
     },
+    created () {
+      this.createProxyServer()
+    },
     async mounted () {
       const isAdmin = require('is-admin')
       if (await isAdmin()) {
         this.status = '檢查權限完成'
         const champion = await axios.get('static/champion.json')
         this.championList = await champion.data.data
+        console.log(this.proxy)
         await this.connectLOLLoop()
       } else {
         this.status = '執行失敗!請使用系統管理員權限重新執行'
       }
     },
     methods: {
+      createProxyServer () {
+        // Listen on a specific host via the HOST environment variable
+        const host = '0.0.0.0'
+        // Listen on a specific port via the PORT environment variable
+        const port = 8880
+        const corsProxy = require('cors-anywhere')
+        corsProxy.createServer({
+          originWhitelist: [], // Allow all origins
+          requireHeader: ['origin', 'x-requested-with'],
+          removeHeaders: ['cookie', 'cookie2']
+        }).listen(port, host)
+      },
       openDev () {
         const remote = require('electron').remote
         remote.getCurrentWebContents().openDevTools({mode: 'detach'})
@@ -196,7 +212,7 @@
         gameFlow: '',
         teamList: [],
         accountIdList: [],
-        proxy: 'https://cors-anywhere.herokuapp.com/',
+        proxy: 'http://localhost:8880/',
         championList: null,
         isAutoAccept: false,
         queueTypesTable: {
