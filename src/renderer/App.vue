@@ -13,15 +13,15 @@
       <div class="status">
         <p class="text--white">{{ status }}</p>
       </div>
+      <!-- <button @click="openDev">偵錯</button> -->
     </div>
-      <!--button-- @click="openDev">偵錯</!--button-->
   </div>
 </template>
 
 <script>
   import AppTitleBar from './components/AppTitleBar/AppTitleBar'
   import AppTable from './components/AppTable/AppTable'
-  import { auth, request } from 'league-connect'
+  import { auth, request, connect } from 'league-connect'
   const axios = require('axios')
   export default {
     name: 'mt-lol',
@@ -38,7 +38,6 @@
         this.status = '檢查權限完成'
         const champion = await axios.get('static/champion.json')
         this.championList = await champion.data.data
-        console.log(this.proxy)
         await this.connectLOLLoop()
       } else {
         this.status = '執行失敗!請使用系統管理員權限重新執行'
@@ -89,18 +88,14 @@
         }
       },
       async checkGameFlow () {
-        try {
-          const response = await request({
-            url: '/lol-gameflow/v1/gameflow-phase',
-            method: 'GET'
-          }, this.credentials)
-          this.gameFlow = await response.json()
-          await this.sleep(500)
-          this.checkGameFlow()
-        } catch (err) {
+        const websocket = await connect(this.credentials)
+        websocket.subscribe('/lol-gameflow/v1/gameflow-phase', (data, event) => {
+          this.gameFlow = data
+        })
+        websocket.on('close', () => {
           this.status = '已關閉遊戲，重新偵測中'
           this.connectLOLLoop()
-        }
+        })
       },
       async getTeamList () {
         this.status = '查詢戰績中...'
@@ -277,9 +272,13 @@
     }
     & label {
       cursor: pointer;
+      display: flex;
+      align-items: center
     }
     &__text {
       display: inline-block;
+      line-height: .19rem;
+      margin-left: .1rem;
     }
   }
   .icon--checkbox {
