@@ -88,6 +88,16 @@
         }
       },
       async checkGameFlow () {
+        try {
+          const response = await request({
+            url: '/lol-gameflow/v1/gameflow-phase',
+            method: 'GET'
+          }, this.credentials)
+          this.gameFlow = await response.json()
+        } catch (err) {
+          this.status = '已關閉遊戲，重新偵測中'
+          this.connectLOLLoop()
+        }
         const websocket = await connect(this.credentials)
         websocket.subscribe('/lol-gameflow/v1/gameflow-phase', (data, event) => {
           this.gameFlow = data
@@ -176,7 +186,7 @@
             }
           )
         }))
-        // console.log(this.playerHistory)
+        console.log(this.playerHistory)
         this.status = '查詢戰績完成'
       },
       async clickAcceptBtn () {
