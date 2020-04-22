@@ -122,7 +122,7 @@
         }
         */
         this.teamList = list.myTeam
-        // console.log(this.teamList)
+        console.log(list)
         this.getAccountId()
       },
       async getRankData (puuid) {
@@ -146,8 +146,9 @@
         return newRankData
       },
       async getAccountId () {
+        const accountIdTemp = []
         this.accountIdList = []
-        await Promise.all(this.teamList.map(async el => {
+        await Promise.all(this.teamList.map(async (el, index) => {
           const response = await request({
             url: `/lol-summoner/v1/summoners/${el.summonerId}`,
             // url: `/lol-ranked/v1/ranked-stats/0e1e1b6c-74a1-5c6e-8e8b-d25aeb59e770`,
@@ -158,6 +159,13 @@
           const rankData = await this.getRankData(json.puuid)
           const newRankData = await this.detailRankData(rankData)
           // console.log(newRankData)
+          accountIdTemp[index] = {
+            accountId: json.accountId,
+            displayName: json.displayName,
+            puuid: json.puuid,
+            rankData: newRankData
+          }
+          /*
           await this.accountIdList.push(
             {
               accountId: json.accountId,
@@ -166,18 +174,27 @@
               rankData: newRankData
             }
           )
+          */
           // console.log(this.accountIdList)
         }))
+        this.accountIdList = accountIdTemp
         this.getPlayerHistory()
       },
       async getPlayerHistory () {
+        const playerHistoryTemp = []
         this.playerHistory = []
-        await Promise.all(this.accountIdList.map(async el => {
+        await Promise.all(this.accountIdList.map(async (el, index) => {
           const playerHistory = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/player_history/TW/${el.accountId}?begIndex=0&endIndex=4`, {
             headers: {
               'X-Requested-With': 'XMLHttpRequest'
             }
           })
+          playerHistoryTemp[index] = {
+            displayName: el.displayName,
+            rankData: el.rankData,
+            games: playerHistory.data.games.games
+          }
+          /*
           this.playerHistory.push(
             {
               displayName: el.displayName,
@@ -185,8 +202,9 @@
               games: playerHistory.data.games.games
             }
           )
+          */
         }))
-        console.log(this.playerHistory)
+        this.playerHistory = playerHistoryTemp
         this.status = '查詢戰績完成'
       },
       async clickAcceptBtn () {

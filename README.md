@@ -1,7 +1,7 @@
 
 # :trophy: mtLOL 英雄聯盟積分戰績輔助工具
 
-下載點1.3.2：https://drive.google.com/file/d/1oorazOHgL90bNnwQDuLwVL89p39C8rGb/view?usp=sharing
+下載點1.4.0：https://drive.google.com/file/d/1ksQxFzF6jB5WfGQfCjRbSo5nCJr9YPQD/view?usp=sharing
 
 一款英雄聯盟單雙排積分查詢輔助工具，只需開著程式當配對成功進入聊天室即可自動查詢戰績
 
