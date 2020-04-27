@@ -2,7 +2,7 @@
   <vue-custom-scrollbar class="scroll-area">
     <v-container fluid>
       <!-- filter -->
-      <v-chip-group mandatory v-model="filter" class="mx-3">
+      <v-chip-group mandatory v-model="filter" class="mx-3" active-class="grey darken-4 primary">
         <v-chip filter>所有紀錄</v-chip>
         <v-chip filter>單雙積分</v-chip>
         <v-chip filter>彈性積分</v-chip>
@@ -35,10 +35,12 @@
                   <v-card-text>{{ formatDateHM(new Date(game.gameCreation)) }}</v-card-text>
                 </div>
                 <v-card-title>
-                  <v-icon class="mr-5">
+                  <v-icon class="mr-5" :color="game.participants[0].stats.win ? 'success' : 'warning'">
                     {{ game.participants[0].stats.win ? 'mdi-check' : 'mdi-close'}}
                   </v-icon>
-                  {{ getChampNameStr(game.participants[0].championId) }}
+                  <span :class="game.participants[0].stats.win ? 'success--text' : 'warning--text'">
+                    {{ getChampNameStr(game.participants[0].championId) }}
+                  </span>
                 </v-card-title>
                 <v-card-text>{{ game.participants[0].stats.kills }}/{{ game.participants[0].stats.deaths }}/{{ game.participants[0].stats.assists }} {{ getLaneStr(game.participants[0].timeline.lane) }}</v-card-text>
                 <v-card-text class="pt-0">{{ getQueueIdStr(game.queueId) }}</v-card-text>
