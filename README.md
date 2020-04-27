@@ -1,7 +1,7 @@
 
 # :trophy: mtLOL 英雄聯盟積分戰績輔助工具
 
-下載點1.4.0：https://drive.google.com/file/d/1ksQxFzF6jB5WfGQfCjRbSo5nCJr9YPQD/view?usp=sharing
+下載點1.5.0：https://drive.google.com/file/d/1oDp_NA_zZftknO0NxSIVLZc69yqWIJvt/view?usp=sharing
 
 一款英雄聯盟單雙排積分查詢輔助工具，只需開著程式當配對成功進入聊天室即可自動查詢戰績
 
@@ -10,12 +10,17 @@
 
 ## :page_facing_up: 技術 & 框架
 
-- **vue-electron**：整合Vue的electron開發框架
 - **Sass(Scss)**：CSS預處理器
 - **ES6**：ECMAScript 6 語法
 - **axios**：基於Promise的HTTP庫，可以用在瀏覽器和node.js中
 - **is-admin**：檢查系統管理員身分
 - **league-connect**：英雄聯盟客戶端連線工具
+- **cors-anywhere**：進行CORS request
+- **vue-electron**：整合Vue的electron開發框架
+- **vue-custom-scrollbar**：美化scrollbar
+- **vue-router**：Vue官方路由管理器
+- **vuetify**：Vue UI庫
+- **vuex**：Vue狀態管理
 
 ## :pencil2: Reference
 
