@@ -53,7 +53,7 @@
           removeHeaders: ['cookie', 'cookie2']
         }).listen(port, host)
         this.proxy = `http://localhost:${port}/`
-        console.log('proxy server finish')
+        // console.log('proxy server finish')
       },
       async connectLOL () {
         this.$store.commit('setStatus', '偵測LOL中')
@@ -195,7 +195,7 @@
         }))
         this.$store.commit('setStatus', '戰積查詢完成')
         this.$store.commit('setMyTeamPlayHistorys', playerHistoryTemp)
-        console.log(playerHistoryTemp)
+        // console.log(playerHistoryTemp)
       }
     },
     data: () => ({

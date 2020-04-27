@@ -8,7 +8,7 @@
         <v-chip filter>彈性積分</v-chip>
         <v-chip filter>一般對戰</v-chip>
       </v-chip-group>
-
+      <v-img src="static/empty.svg" width="150" class="mx-auto mt-10" v-if="myTeamPlayHistorys.length === 0"></v-img>
       <!-- eachPlayerInfo -->
       <v-card class="mx-3 mt-5" v-for="myTeamPlayHistory in myTeamPlayHistorys" :key="myTeamPlayHistory.displayName">
         <v-row>
@@ -49,7 +49,7 @@
       </v-card>
 
     <!-- autoAccept -->
-    <v-row>
+    <v-row class="mt-3">
       <v-switch class="mx-auto mt-4" label="自動接受配對" v-model="isAutoAccept"></v-switch>
     </v-row>
       <p class="text-center mt-6">{{ status }}</p>
@@ -85,7 +85,7 @@ export default {
       filter: 0,
       historyLists: [
         { icon: 'mdi-account-box', title: '單雙', attribute: 'RANKED_SOLO_5x5' },
-        { icon: 'mdi-flag', title: '彈性', attribute: 'RANKED_FLEX_SR' },
+        { icon: 'mdi-account-group', title: '彈性', attribute: 'RANKED_FLEX_SR' },
         { icon: 'mdi-chess-knight', title: '戰棋', attribute: 'RANKED_TFT' }
       ],
       championList: []
@@ -141,7 +141,7 @@ export default {
     },
     gamesfilter (games) {
       if (this.filter === 0) {
-        console.log(games)
+        // console.log(games)
         return games.slice(-4)
       }
       // 無, 單雙, 彈性, 一般
