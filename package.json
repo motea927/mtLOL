@@ -59,6 +59,7 @@
     "is-admin": "^3.0.0",
     "league-connect": "^2.0.1",
     "vue": "^2.5.16",
+    "vue-custom-scrollbar": "^1.1.0",
     "vue-electron": "^1.0.6",
     "vue-router": "^3.1.6",
     "vuetify": "^2.2.25",

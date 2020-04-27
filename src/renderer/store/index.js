@@ -7,7 +7,8 @@ const store = new Vuex.Store({
   state: {
     isAutoAccept: false,
     isDrawerShow: false,
-    status: ''
+    status: '',
+    myTeamPlayHistorys: []
   },
   mutations: {
     setDrawerShow (state, val) {
@@ -18,6 +19,9 @@ const store = new Vuex.Store({
     },
     setAutoAccept (state, isAutoAccept) {
       state.isAutoAccept = isAutoAccept
+    },
+    setMyTeamPlayHistorys (state, myTeamPlayHistorys) {
+      state.myTeamPlayHistorys = myTeamPlayHistorys
     }
   }
 })
