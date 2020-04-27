@@ -29,7 +29,7 @@
         <v-row class="px-5">
           <v-col sm="3" md="2" v-for="game in gamesfilter(myTeamPlayHistory.games)" :key="game.gameId">
             <v-hover v-slot:default="{ hover }">
-              <v-card>
+              <v-card color="#222831">
                 <div v-if="hover" class="playerHistory--hover">
                   <v-card-text>{{ formatDateYMD(new Date(game.gameCreation)) }}</v-card-text>
                   <v-card-text>{{ formatDateHM(new Date(game.gameCreation)) }}</v-card-text>
