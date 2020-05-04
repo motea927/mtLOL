@@ -25,7 +25,6 @@
       AppSystemBar,
       AppBar,
       AppNavDrawer
-      // ,AppTable
     },
     async created () {
       const checkAdmin = await isAdmin()
@@ -130,7 +129,6 @@
         await Promise.all(this.teamList.map(async (el, index) => {
           const response = await request({
             url: `/lol-summoner/v1/summoners/${el.summonerId}`,
-            // url: `/lol-ranked/v1/ranked-stats/0e1e1b6c-74a1-5c6e-8e8b-d25aeb59e770`,
             method: 'GET'
           }, this.credentials)
           const json = await response.json()
@@ -183,19 +181,65 @@
             rankData: el.rankData,
             games: playerHistory.data.games.games
           }
-          /*
-          this.playerHistory.push(
-            {
-              displayName: el.displayName,
-              rankData: el.rankData,
-              games: playerHistory.data.games.games
-            }
-          )
-          */
         }))
-        this.$store.commit('setStatus', '戰積查詢完成')
-        this.$store.commit('setMyTeamPlayHistorys', playerHistoryTemp)
+        this.playerHistory = playerHistoryTemp
         // console.log(playerHistoryTemp)
+      },
+      async getAllGamesTeamMateList () {
+        this.$store.commit('setStatus', '戰積查詢完成，過濾雙排資訊中')
+        // https://acs-garena.leagueoflegends.com/v1/stats/game/TW/1793285941/
+        // each player
+        let playerHistoryTemp = [...this.playerHistory]
+        await Promise.all(playerHistoryTemp.map(async (eachPlayer, index) => {
+          let allGamesTeamMateList = []
+          // player each games
+          await Promise.all(eachPlayer.games.map(async game => {
+            const teamId = game.participants[0].teamId
+            const gameHistory = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/game/TW/${game.gameId}`, {
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+              }
+            })
+            // each games teammate ID
+            let eachGamesTeammateIdList
+            if (teamId === 100) {
+              eachGamesTeammateIdList = gameHistory.data.participantIdentities.slice(0, 5)
+            } else {
+              eachGamesTeammateIdList = gameHistory.data.participantIdentities.slice(5, 10)
+            }
+            // each games summonerName
+            const eachGamesSummonerName = eachGamesTeammateIdList.map(teammate => {
+              if (teammate.player.summonerName !== eachPlayer.displayName) return teammate.player.summonerName
+            })
+            allGamesTeamMateList.push(...eachGamesSummonerName)
+          }))
+          playerHistoryTemp[index].allGamesTeamMateList = allGamesTeamMateList
+        }))
+      },
+      async checkArrangeTeam () {
+        let playerHistoryTemp = [...this.playerHistory]
+        // use eachPlayer find arrangeTeamList
+        playerHistoryTemp.forEach((currentPlayer, index) => {
+          const currentId = currentPlayer.displayName
+          const arrangeTeamList = []
+          // compare allGamesTeamMateList === anotherPlayer
+          playerHistoryTemp.forEach(anotherPlayer => {
+            if (anotherPlayer.displayName !== currentId) {
+              const teammateCounts = currentPlayer.allGamesTeamMateList.filter(name => {
+                return name === anotherPlayer.displayName
+              })
+              if (teammateCounts.length > 0) {
+                arrangeTeamList.push({id: anotherPlayer.displayName, counts: teammateCounts.length})
+              }
+            }
+          })
+          // 找完
+          playerHistoryTemp[index].arrangeTeamList = arrangeTeamList
+        })
+        // console.log(playerHistoryTemp)
+        this.playerHistory = playerHistoryTemp
+        this.$store.commit('setStatus', '戰積查詢完成')
+        this.$store.commit('setMyTeamPlayHistorys', this.playerHistory)
       }
     },
     data: () => ({
@@ -214,8 +258,8 @@
         MASTER: '大師',
         CHALLENGER: '菁英',
         NONE: '無牌位'
-      }
-      //
+      },
+      playerHistory: []
     }),
     computed: {
       isAutoAccept () {
@@ -233,9 +277,10 @@
           await this.getTeamList()
           await this.getAccountId()
           await this.getPlayerHistory()
+          await this.getAllGamesTeamMateList()
+          await this.checkArrangeTeam()
           this.$store.commit('setStatus', '戰積查詢完成')
         }
-        // console.log(gameflow)
       }
     }
   }

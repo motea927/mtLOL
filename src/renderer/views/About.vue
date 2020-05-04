@@ -1,4 +1,5 @@
 <template>
+  <vue-custom-scrollbar class="scroll-area">
   <v-container>
     <v-card class="mx-3 mt-5">
       <v-card-title>
@@ -10,9 +11,6 @@
       <v-row>
         <v-col>
           <v-card-text>
-            街口帳號: 901917853 (抹綠)
-          </v-card-text>
-          <v-card-text>
             巴哈姆特: k888333617 (草泥馬)
           </v-card-text>
           <v-card-text>
@@ -22,16 +20,28 @@
         Source Code: https://github.com/motea927/mtLOL
       </v-card-text>
         </v-col>
-        <v-col cols="5" class="mt-n5">
-          <v-img src="static/jko.jpg" width="200" class="mx-auto my-5"></v-img>
-        </v-col>
       </v-row>
     </v-card>
+      
+    <v-card class="mx-3 mt-5">
+      <v-card-title>
+        街口支付
+      </v-card-title>
+      <v-img src="/static/jko.png" contain width="300" class="mx-auto"></v-img>
+      <v-card-text>
+        街口帳號: 901917853 (抹綠)
+      </v-card-text>
+    </v-card>
   </v-container>
+  </vue-custom-scrollbar>
 </template>
 
 <script>
+import vueCustomScrollbar from 'vue-custom-scrollbar'
 export default {
+  components: {
+    vueCustomScrollbar
+  },
   methods: {
     goTolink (event) {
       console.log(event)

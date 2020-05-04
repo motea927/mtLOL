@@ -8,15 +8,23 @@
         <v-chip filter>彈性積分</v-chip>
         <v-chip filter>一般對戰</v-chip>
       </v-chip-group>
+
+      <!-- empty state -->
       <v-img src="static/empty.svg" width="150" class="mx-auto mt-10" v-if="myTeamPlayHistorys.length === 0"></v-img>
+
       <!-- eachPlayerInfo -->
       <v-card class="mx-3 mt-5" v-for="myTeamPlayHistory in myTeamPlayHistorys" :key="myTeamPlayHistory.displayName">
         <v-row>
           <v-col>
-            <v-card-title>{{ myTeamPlayHistory.displayName }}</v-card-title>
+            <v-card-title>
+              {{ myTeamPlayHistory.displayName }}
+              <v-chip class="ml-3 grey darken-4 primary" v-for="(arrangeTeamList, index) in myTeamPlayHistory.arrangeTeamList" :key="index">
+              與{{ arrangeTeamList.id }}雙排{{ arrangeTeamList.counts }}場
+              </v-chip>
+            </v-card-title>
           </v-col>
         </v-row>
-        <v-card-text class="text--secondary my-0 py-1">
+        <v-card-text class="text--secondary my-0 pb-1 pt-0">
           <span v-for="historyList in historyLists" :key="historyList.title">
             <v-icon class="mx-1" color="rgba( 255, 255, 255, 0.7)" >{{ historyList.icon }}</v-icon>
               <span class="mr-1">
@@ -114,7 +122,7 @@ export default {
         MIDDLE: '中路',
         JUNGLE: '打野',
         BOTTOM: '下路',
-        NONOE: ''
+        NONE: ''
       }
       return laneTable[lane]
     },
