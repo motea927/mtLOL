@@ -171,6 +171,15 @@
       async getPlayerHistory () {
         const playerHistoryTemp = []
         await Promise.all(this.accountIdList.map(async (el, index) => {
+          // test
+          // /lol-acs/v1/matchlists/{accountId}
+          // //lol-match-history/v1/recently-played-summoners//gg
+          const response = await request({
+            url: `/lol-clash/v1/historyandwinners`,
+            method: 'GET'
+          }, this.credentials)
+          console.log(await response.json())
+          // test
           const playerHistory = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/player_history/TW/${el.accountId}?begIndex=0&endIndex=20`, {
             headers: {
               'X-Requested-With': 'XMLHttpRequest'

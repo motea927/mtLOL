@@ -27,7 +27,7 @@
       <v-card-title>
         街口支付
       </v-card-title>
-      <v-img src="/static/jko.png" contain width="300" class="mx-auto"></v-img>
+      <v-img src="static/jko.jpg" width="300" class="mx-auto"></v-img>
       <v-card-text>
         街口帳號: 901917853 (抹綠)
       </v-card-text>
