@@ -1,6 +1,6 @@
 <template>
   <vue-custom-scrollbar class="scroll-area">
-    <v-container fluid>
+    <v-container fluid class="home">
       <!-- filter -->
       <v-chip-group mandatory v-model="filter" class="mx-3" active-class="grey darken-4 primary">
         <v-chip filter>所有紀錄</v-chip>
@@ -11,52 +11,52 @@
 
       <!-- empty state -->
       <v-img src="static/empty.svg" width="150" class="mx-auto mt-10" v-if="myTeamPlayHistorys.length === 0"></v-img>
-
-      <!-- eachPlayerInfo -->
-      <v-card class="mx-3 mt-5" v-for="myTeamPlayHistory in myTeamPlayHistorys" :key="myTeamPlayHistory.displayName">
-        <v-row>
-          <v-col>
-            <v-card-title>
-              {{ myTeamPlayHistory.displayName }}
-              <v-chip class="ml-3 grey darken-4 primary" v-for="(arrangeTeamList, index) in myTeamPlayHistory.arrangeTeamList" :key="index">
-              與{{ arrangeTeamList.id }}雙排{{ arrangeTeamList.counts }}場
-              </v-chip>
-            </v-card-title>
-          </v-col>
-        </v-row>
-        <v-card-text class="text--secondary my-0 pb-1 pt-0">
-          <span v-for="historyList in historyLists" :key="historyList.title">
-            <v-icon class="mx-1" color="rgba( 255, 255, 255, 0.7)" >{{ historyList.icon }}</v-icon>
-              <span class="mr-1">
+      <!--更改-->
+      <v-simple-table dense v-else>
+        <thead>
+          <tr>
+            <th class="text-left">ID</th>
+            <th class="text-left">紀錄 1</th>
+            <th class="text-left">紀錄 2</th>
+            <th class="text-left">紀錄 3</th>
+            <th class="text-left">紀錄 4</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(myTeamPlayHistory, index) in myTeamPlayHistorys" :key="index" :class="getRowClass(index)">
+            <td>
+              <p class="my-2 subtitle-1 font-weight-bold">{{ myTeamPlayHistory.displayName }}</p>
+              <p class="my-2" v-for="historyList in historyLists" :key="historyList.title">
                 {{ historyList.title }}: {{ myTeamPlayHistory.rankData[historyList.attribute] ? myTeamPlayHistory.rankData[historyList.attribute] : '無牌位'}}
-              </span>
-          </span>
-        </v-card-text>
-
-        <!-- eachPlayerHistory -->
-        <v-row class="px-5">
-          <v-col sm="3" md="2" v-for="game in gamesfilter(myTeamPlayHistory.games)" :key="game.gameId">
-            <v-hover v-slot:default="{ hover }">
-              <v-card color="#222831">
+              </p>
+              <v-chip class="grey darken-4 primary mb-2" label small v-for="(arrangeTeamList, index) in myTeamPlayHistory.arrangeTeamList" :key="index">
+                與{{ arrangeTeamList.id }}雙排{{ arrangeTeamList.counts }}場
+              </v-chip>
+            </td>
+            <v-hover v-slot:default="{ hover }" v-for="game in gamesfilter(myTeamPlayHistory.games)" :key="game.gameId">
+              <td>
+                <p class="my-2" :class="game.participants[0].stats.win ? 'success--text' : 'warning--text'">
+                  <v-icon :class="game.participants[0].stats.win ? 'success--text' : 'warning--text'" small>
+                     {{ game.participants[0].stats.win ? 'mdi-check-circle' : 'mdi-close-circle'}}
+                    mdi-check-circle
+                  </v-icon> 
+                  {{ getChampNameStr(game.participants[0].championId) }}
+                </p>
+                <p class="my-2">{{ game.participants[0].stats.kills }}/{{ game.participants[0].stats.deaths }}/{{ game.participants[0].stats.assists }}</p>
+                <p class="my-2">{{ getQueueIdStr(game.queueId) }}</p>
                 <div v-if="hover" class="playerHistory--hover">
-                  <v-card-text>{{ formatDateYMD(new Date(game.gameCreation)) }}</v-card-text>
-                  <v-card-text>{{ formatDateHM(new Date(game.gameCreation)) }}</v-card-text>
+                  <p class="my-2">{{ formatDateYMD(new Date(game.gameCreation)) }}</p>
+                  <p class="my-2">{{ formatDateHM(new Date(game.gameCreation)) }}</p>
+                  <p class="my-2">{{ getLaneStr(game.participants[0].timeline.lane) }}</p>
                 </div>
-                <v-card-title>
-                  <v-icon class="mr-5" :color="game.participants[0].stats.win ? 'success' : 'warning'">
-                    {{ game.participants[0].stats.win ? 'mdi-check' : 'mdi-close'}}
-                  </v-icon>
-                  <span :class="game.participants[0].stats.win ? 'success--text' : 'warning--text'">
-                    {{ getChampNameStr(game.participants[0].championId) }}
-                  </span>
-                </v-card-title>
-                <v-card-text>{{ game.participants[0].stats.kills }}/{{ game.participants[0].stats.deaths }}/{{ game.participants[0].stats.assists }} {{ getLaneStr(game.participants[0].timeline.lane) }}</v-card-text>
-                <v-card-text class="pt-0">{{ getQueueIdStr(game.queueId) }}</v-card-text>
-              </v-card>
+              </td>
             </v-hover>
-          </v-col>
-        </v-row>
-      </v-card>
+            </tr>
+        </tbody>
+    </v-simple-table>
+      <!--更改-->
+      <!-- eachPlayerInfo -->
+      
 
     <!-- autoAccept -->
     <v-row class="mt-3">
@@ -69,6 +69,8 @@
 
 <script>
 import vueCustomScrollbar from 'vue-custom-scrollbar'
+const Store = require('electron-store')
+const electronStore = new Store()
 const axios = require('axios')
 export default {
   components: {
@@ -84,19 +86,30 @@ export default {
       },
       set (isAutoAccept) {
         this.$store.commit('setAutoAccept', isAutoAccept)
+        electronStore.set('isAutoAccept', isAutoAccept)
       }
     },
     myTeamPlayHistorys () {
       return this.$store.state.myTeamPlayHistorys
+    },
+    filter: {
+      get () {
+        return this.$store.state.filter
+      },
+      set (filter) {
+        this.$store.commit('setFilter', filter)
+        electronStore.set('filter', filter)
+      }
+    },
+    isDarkTheme () {
+      return this.$store.state.isDarkTheme
     }
   },
   data () {
     return {
-      filter: 0,
       historyLists: [
-        { icon: 'mdi-account-box', title: '單雙', attribute: 'RANKED_SOLO_5x5' },
-        { icon: 'mdi-account-group', title: '彈性', attribute: 'RANKED_FLEX_SR' },
-        { icon: 'mdi-chess-knight', title: '戰棋', attribute: 'RANKED_TFT' }
+        { title: '單雙', attribute: 'RANKED_SOLO_5x5' },
+        { title: '彈性', attribute: 'RANKED_FLEX_SR' }
       ],
       championList: []
     }
@@ -113,7 +126,7 @@ export default {
     },
     formatDateYMD (date) {
       const month = date.getMonth() + 1 >= 10 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`
-      const day = date.getDate()
+      const day = date.getDate() >= 10 ? date.getDate() : `0${date.getDate()}`
       return `${month}/${day}`
     },
     getLaneStr (lane) {
@@ -158,6 +171,16 @@ export default {
       const gamesTable = [0, 420, 440, 430]
       const filterResult = games.filter((game) => game.queueId === gamesTable[this.filter])
       return filterResult.slice(-4)
+    },
+    getRowClass (index) {
+      if (index % 2 !== 0) {
+        if (this.isDarkTheme) {
+          return 'home__evenrow--dark'
+        } else {
+          return 'home__evenrow--light'
+        }
+      }
+      return ''
     }
   }
 }
@@ -166,9 +189,11 @@ export default {
 <style lang="scss">
   .playerHistory--hover {
     position: absolute;
+    top: 0;
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, .85);
+    color: white;
     z-index: 1;
   }
   .scroll-area {
@@ -177,5 +202,20 @@ export default {
     width: 100%;
     overflow: scroll;
     height: calc(100vh - 80px);
+  }
+  .home {
+    & td {
+      position: relative;
+      overflow: hidden;
+    }
+    & tbody {
+      overflow: hidden;
+    }
+    &__evenrow--dark {
+      background-color: #212832;
+    }
+    &__evenrow--light {
+      background-color: #f4f4f4;
+    }
   }
 </style>

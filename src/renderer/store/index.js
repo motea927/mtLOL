@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -8,7 +7,9 @@ const store = new Vuex.Store({
     isAutoAccept: false,
     isDrawerShow: false,
     status: '',
-    myTeamPlayHistorys: []
+    myTeamPlayHistorys: [],
+    isDarkTheme: true,
+    filter: 0
   },
   mutations: {
     setDrawerShow (state, val) {
@@ -22,6 +23,12 @@ const store = new Vuex.Store({
     },
     setMyTeamPlayHistorys (state, myTeamPlayHistorys) {
       state.myTeamPlayHistorys = myTeamPlayHistorys
+    },
+    setDarkTheme (state, isDarkTheme) {
+      state.isDarkTheme = isDarkTheme
+    },
+    setFilter (state, filter) {
+      state.filter = filter
     }
   }
 })

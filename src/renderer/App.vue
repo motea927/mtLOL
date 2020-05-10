@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-content>
-      <div id="app">
+      <div id="app" :class="isDarkTheme ? '' : 'app--light'">
         <app-system-bar></app-system-bar>
         <app-bar></app-bar>
         <app-nav-drawer></app-nav-drawer>
@@ -29,6 +29,7 @@
     async created () {
       const checkAdmin = await isAdmin()
       if (checkAdmin) {
+        this.initElectronStore()
         this.$store.commit('setStatus', '檢查權限完成')
         this.createProxyServer()
         await this.connectLOLLoop()
@@ -37,6 +38,39 @@
       }
     },
     methods: {
+      initElectronStore () {
+        const Store = require('electron-store')
+        const electronStore = new Store()
+        const storeDefaultVal = [
+          {
+            name: 'isDarkTheme',
+            defaultVal: true,
+            commitName: 'setDarkTheme'
+          },
+          {
+            name: 'isAutoAccept',
+            defaultVal: false,
+            commitName: 'setAutoAccept'
+          },
+          {
+            name: 'filter',
+            defaultVal: 0,
+            commitName: 'setFilter'
+          }
+        ]
+        storeDefaultVal.forEach(el => {
+          if (electronStore.has(el.name)) {
+            this.$store.commit(el.commitName, electronStore.get(el.name))
+            if (el.name === 'isDarkTheme') this.$vuetify.theme.dark = electronStore.get(el.name)
+          } else {
+            electronStore.set(el.name, el.defaultVal)
+            this.$store.commit(el.commitName, electronStore.get(el.name))
+          }
+        })
+        electronStore.has('isDarkTheme')
+        // electronStore.has('isAutoAccept')
+        // electronStore.has('filter')
+      },
       sleep (time) {
         return new Promise((resolve) => {
           setTimeout(resolve, time)
@@ -169,17 +203,9 @@
         return newRankData
       },
       async getPlayerHistory () {
+        this.$store.commit('setMyTeamPlayHistorys', [])
         const playerHistoryTemp = []
         await Promise.all(this.accountIdList.map(async (el, index) => {
-          // test
-          // /lol-acs/v1/matchlists/{accountId}
-          // //lol-match-history/v1/recently-played-summoners//gg
-          const response = await request({
-            url: `/lol-clash/v1/historyandwinners`,
-            method: 'GET'
-          }, this.credentials)
-          console.log(await response.json())
-          // test
           const playerHistory = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/player_history/TW/${el.accountId}?begIndex=0&endIndex=20`, {
             headers: {
               'X-Requested-With': 'XMLHttpRequest'
@@ -209,6 +235,7 @@
                 'X-Requested-With': 'XMLHttpRequest'
               }
             })
+            console.log(`player index:${index}, gameId: ${game.gameId}`)
             // each games teammate ID
             let eachGamesTeammateIdList
             if (teamId === 100) {
@@ -273,6 +300,9 @@
     computed: {
       isAutoAccept () {
         return this.$store.state.isAutoAccept
+      },
+      isDarkTheme () {
+        return this.$store.state.isDarkTheme
       }
     },
     watch: {
@@ -297,9 +327,12 @@
 
 <style lang="scss">
   * {
-    font-family: Roboto, '微軟正黑體';
+    font-family: 'Microsoft JhengHei';
   }
   html, body, #app {
     overflow: hidden !important;
+  }
+  .app--light {
+    background-color: #EEEEEE;
   }
 </style>

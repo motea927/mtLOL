@@ -6,7 +6,13 @@ Vue.use(Vuetify)
 
 const opts = {
   theme: {
-    dark: true
+    dark: true,
+    themes: {
+      light: {
+        success: '#33691E',
+        warning: '#E9422E'
+      }
+    }
   }
 }
 
