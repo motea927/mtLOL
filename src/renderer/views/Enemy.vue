@@ -1,17 +1,15 @@
 <template>
   <vue-custom-scrollbar class="scroll-area">
-    <v-container fluid class="home">
+    <v-container fluid class="enemy">
       <!-- filter -->
       <app-filter></app-filter>
-
       <!-- playHistorys -->
-      <app-play-historys :historys="myTeamPlayHistorys"></app-play-historys>
+      <app-play-historys :historys="enemyPlayHistorys"></app-play-historys>
       
       <!-- autoAccept -->
       <v-row class="mt-3">
         <app-auto-accept></app-auto-accept>
       </v-row>
-      <p class="text-center mt-6">{{ status }}</p>
     </v-container>
   </vue-custom-scrollbar>
 </template>
@@ -32,8 +30,8 @@ export default {
     status () {
       return this.$store.state.status
     },
-    myTeamPlayHistorys () {
-      return this.$store.state.myTeamPlayHistorys
+    enemyPlayHistorys () {
+      return this.$store.state.enemyPlayHistorys
     }
   }
 }
@@ -56,7 +54,7 @@ export default {
     overflow: scroll;
     height: calc(100vh - 80px);
   }
-  .home {
+  .enemy {
     & td {
       position: relative;
       overflow: hidden;

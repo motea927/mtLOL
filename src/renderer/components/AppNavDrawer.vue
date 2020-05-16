@@ -19,6 +19,7 @@ export default {
     return {
       links: [
         { icon: 'mdi-home', text: '首頁', route: '/' },
+        { icon: 'mdi-human-greeting', text: '敵方戰績', route: '/enemy' },
         { icon: 'mdi-information', text: '關於', route: '/about' }
       ]
     }

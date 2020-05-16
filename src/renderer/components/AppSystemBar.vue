@@ -1,7 +1,7 @@
 <template>
   <v-system-bar window class="systembar" color="orange">
     <img src="static/icons.svg" alt="" class="systembar__icon">
-    <h1 class="subtitle-1 grey--text text--darken-3">mtLOL 1.7.0</h1>
+    <h1 class="subtitle-1 grey--text text--darken-3">mtLOL 1.8.0</h1>
     <v-spacer></v-spacer>
     <v-btn icon small @click="controlWindow('min')" class="systembar__btn">
       <v-icon x-small color="grey darken-3">mdi-window-minimize</v-icon>

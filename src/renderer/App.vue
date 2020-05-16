@@ -86,7 +86,6 @@
           removeHeaders: ['cookie', 'cookie2']
         }).listen(port, host)
         this.proxy = `http://localhost:${port}/`
-        // console.log('proxy server finish')
       },
       async connectLOL () {
         this.$store.commit('setStatus', '偵測LOL中')
@@ -119,7 +118,6 @@
           }, this.credentials)
           this.gameFlow = await response.json()
         } catch (err) {
-          // console.log(err)
           this.$store.commit('setStatus', '已關閉遊戲，重新偵測中')
           this.connectLOLLoop()
         }
@@ -147,40 +145,26 @@
           method: 'GET'
         }, this.credentials)
         const list = await response.json()
-        /*
-        {
-          summonerId: ,
-          assignedPosition
-        }
-        */
-        this.teamList = list.myTeam
-        // console.log(`teamList`)
-        // console.log(this.teamList)
+        return list.myTeam
       },
-      async getAccountId () {
-        const accountIdTemp = []
-        this.accountIdList = []
-        await Promise.all(this.teamList.map(async (el, index) => {
+      async getAccountId (teamList) {
+        const accountIdList = []
+        await Promise.all(teamList.map(async (el, index) => {
           const response = await request({
             url: `/lol-summoner/v1/summoners/${el.summonerId}`,
             method: 'GET'
           }, this.credentials)
           const json = await response.json()
-          // console.log(json)
           const rankData = await this.getRankData(json.puuid)
           const newRankData = await this.detailRankData(rankData)
-          // console.log(newRankData)
-          accountIdTemp[index] = {
+          accountIdList[index] = {
             accountId: json.accountId,
             displayName: json.displayName,
             puuid: json.puuid,
             rankData: newRankData
           }
-          // console.log(this.accountIdList)
         }))
-        this.accountIdList = accountIdTemp
-        // console.log(`accountIdList`)
-        // console.log(this.accountIdList)
+        return accountIdList
       },
       async getRankData (puuid) {
         const response = await request(
@@ -202,10 +186,9 @@
         })
         return newRankData
       },
-      async getPlayerHistory () {
-        this.$store.commit('setMyTeamPlayHistorys', [])
+      async getPlayerHistory (accountIdList) {
         const playerHistoryTemp = []
-        await Promise.all(this.accountIdList.map(async (el, index) => {
+        await Promise.all(accountIdList.map(async (el, index) => {
           const playerHistory = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/player_history/TW/${el.accountId}?begIndex=0&endIndex=20`, {
             headers: {
               'X-Requested-With': 'XMLHttpRequest'
@@ -217,26 +200,22 @@
             games: playerHistory.data.games.games
           }
         }))
-        this.playerHistory = playerHistoryTemp
-        // console.log(playerHistoryTemp)
+        return playerHistoryTemp
       },
-      async getAllGamesTeamMateList () {
-        this.$store.commit('setStatus', '戰積查詢完成，過濾雙排資訊中')
+      async getAllGamesTeamMateList (playerHistory) {
         // https://acs-garena.leagueoflegends.com/v1/stats/game/TW/1793285941/
         // each player
-        let playerHistoryTemp = [...this.playerHistory]
+        let playerHistoryTemp = [...playerHistory]
         await Promise.all(playerHistoryTemp.map(async (eachPlayer, index) => {
           let allGamesTeamMateList = []
           // player each games
-          await Promise.all(eachPlayer.games.map(async game => {
+          await Promise.all(eachPlayer.games.slice(-15).map(async game => {
             const teamId = game.participants[0].teamId
             const gameHistory = await axios.get(`${this.proxy}https://acs-garena.leagueoflegends.com/v1/stats/game/TW/${game.gameId}`, {
               headers: {
                 'X-Requested-With': 'XMLHttpRequest'
               }
             })
-            console.log(`player index:${index}, gameId: ${game.gameId}`)
-            // each games teammate ID
             let eachGamesTeammateIdList
             if (teamId === 100) {
               eachGamesTeammateIdList = gameHistory.data.participantIdentities.slice(0, 5)
@@ -251,9 +230,10 @@
           }))
           playerHistoryTemp[index].allGamesTeamMateList = allGamesTeamMateList
         }))
+        return playerHistoryTemp
       },
-      async checkArrangeTeam () {
-        let playerHistoryTemp = [...this.playerHistory]
+      async checkArrangeTeam (playerHistory) {
+        let playerHistoryTemp = [...playerHistory]
         // use eachPlayer find arrangeTeamList
         playerHistoryTemp.forEach((currentPlayer, index) => {
           const currentId = currentPlayer.displayName
@@ -272,17 +252,31 @@
           // 找完
           playerHistoryTemp[index].arrangeTeamList = arrangeTeamList
         })
-        // console.log(playerHistoryTemp)
-        this.playerHistory = playerHistoryTemp
-        this.$store.commit('setStatus', '戰積查詢完成')
-        this.$store.commit('setMyTeamPlayHistorys', this.playerHistory)
+        return playerHistoryTemp
+      },
+      async getGame () {
+        const response = await request({
+          url: `/lol-gameflow/v1/session`,
+          method: 'GET'
+        }, this.credentials)
+        return response.json()
+      },
+      async getChat () {
+        const response = await request({
+          url: '/lol-chat/v1/me',
+          method: 'GET'
+        }, this.credentials)
+        return response.json()
+      },
+      findEnemyTeamByMyName (game, myName) {
+        const myNameIndex = game.teamOne.findIndex(el => el.summonerName === myName)
+        if (myNameIndex !== -1) return game.teamTwo
+        return game.teamOne
       }
     },
     data: () => ({
       gameFlow: '',
       credentials: null,
-      teamList: [],
-      accountIdList: [],
       proxy: '',
       tierTable: {
         IRON: '鐵牌',
@@ -294,8 +288,7 @@
         MASTER: '大師',
         CHALLENGER: '菁英',
         NONE: '無牌位'
-      },
-      playerHistory: []
+      }
     }),
     computed: {
       isAutoAccept () {
@@ -307,18 +300,37 @@
     },
     watch: {
       gameFlow: async function (gameflow) {
+        /*
+         * gameflow_list = ['None', 'Lobby', 'Matchmaking',
+                            'ReadyCheck', 'ChampSelect', 'GameStart',
+                            'InProgress', 'Reconnect', 'PreEndOfGame', 'EndOfGame'
+           ]
+        */
         // autoAccept
         if (gameflow === 'ReadyCheck') {
           if (this.$store.state.isAutoAccept) {
             this.clickAcceptBtn()
           }
         } else if (gameflow === 'ChampSelect') {
-          await this.getTeamList()
-          await this.getAccountId()
-          await this.getPlayerHistory()
-          await this.getAllGamesTeamMateList()
-          await this.checkArrangeTeam()
+          const teamList = await this.getTeamList()
+          const accountIdList = await this.getAccountId(teamList)
+          this.$store.commit('setMyTeamPlayHistorys', [])
+          const playerHistory = await this.getPlayerHistory(accountIdList)
+          this.$store.commit('setStatus', '戰積查詢完成，過濾雙排資訊中')
+          const playerHistoryWithTeamMateList = await this.getAllGamesTeamMateList(playerHistory)
+          const finalPlayerHistory = await this.checkArrangeTeam(playerHistoryWithTeamMateList)
           this.$store.commit('setStatus', '戰積查詢完成')
+          this.$store.commit('setMyTeamPlayHistorys', finalPlayerHistory)
+        } else if (gameflow === 'InProgress') {
+          const chat = await this.getChat()
+          const game = await this.getGame()
+          const enemyTeam = this.findEnemyTeamByMyName(game.gameData, chat.name)
+          const accountIdList = await this.getAccountId(enemyTeam)
+          this.$store.commit('setEnemyPlayHistorys', [])
+          const playerHistory = await this.getPlayerHistory(accountIdList)
+          const playerHistoryWithTeamMateList = await this.getAllGamesTeamMateList(playerHistory)
+          const finalPlayerHistory = await this.checkArrangeTeam(playerHistoryWithTeamMateList)
+          this.$store.commit('setEnemyPlayHistorys', finalPlayerHistory)
         }
       }
     }

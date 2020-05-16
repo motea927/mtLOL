@@ -8,6 +8,7 @@ const store = new Vuex.Store({
     isDrawerShow: false,
     status: '',
     myTeamPlayHistorys: [],
+    enemyPlayHistorys: [],
     isDarkTheme: true,
     filter: 0
   },
@@ -23,6 +24,9 @@ const store = new Vuex.Store({
     },
     setMyTeamPlayHistorys (state, myTeamPlayHistorys) {
       state.myTeamPlayHistorys = myTeamPlayHistorys
+    },
+    setEnemyPlayHistorys (state, enemyPlayHistorys) {
+      state.enemyPlayHistorys = enemyPlayHistorys
     },
     setDarkTheme (state, isDarkTheme) {
       state.isDarkTheme = isDarkTheme

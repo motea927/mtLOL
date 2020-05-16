@@ -1,12 +1,13 @@
 
 # :trophy: mtLOL 英雄聯盟積分戰績輔助工具
 
-下載點1.7.0：https://drive.google.com/file/d/1x_X4Z-fJGTak6aIj_tZbH8yDaqFUir1z/view?usp=sharing
+下載點1.8.0：https://drive.google.com/file/d/1JXrmoBUpNEPnRVkmtzP50WilUFt5x07w/view?usp=sharing
 
 一款英雄聯盟單雙排積分查詢輔助工具，只需開著程式當配對成功進入聊天室即可自動查詢戰績
 
 ![image](https://raw.githubusercontent.com/motea927/mtLOL/master/demo/img/demo1.jpg)
 ![image](https://raw.githubusercontent.com/motea927/mtLOL/master/demo/img/demo2.jpg)
+![image](https://raw.githubusercontent.com/motea927/mtLOL/master/demo/img/demo3.jpg)
 
 ## :page_facing_up: 技術 & 框架
 
